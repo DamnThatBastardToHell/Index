@@ -279,7 +279,7 @@
             <h6 class="me-2">分享這個懶人包</h6>
             <a href="https://social-plugins.line.me/lineit/share?url=https://tucheng-sisters.com" target="_blank" class="btn btn-success"><i class="bi bi-line"></i> LINE</a>
             <a href="https://www.facebook.com/sharer/sharer.php?u=https://tucheng-sisters.com" target="_blank" class="btn btn-primary"><i class="bi bi-facebook"></i> Facebook</a>
-            <button type="button" class="btn btn-secondary" id="copyLinkBtn"><i class="bi bi-clipboard-fill"></i> 複製網址</button>
+            <button type="button" class="btn btn-secondary copyLinkBtn"><i class="bi bi-clipboard-fill"></i> 複製網址</button>
         </div>
     </div>
 
@@ -309,7 +309,7 @@
               <h6 class="me-auto">分享這個懶人包</h6>
               <a href="https://social-plugins.line.me/lineit/share?url=https://tucheng-sisters.com" target="_blank" class="btn btn-success"><i class="bi bi-line"></i> LINE</a>
               <a href="https://www.facebook.com/sharer/sharer.php?u=https://tucheng-sisters.com" target="_blank" class="btn btn-primary"><i class="bi bi-facebook"></i> Facebook</a>
-              <button type="button" class="btn btn-secondary" id="copyLinkBtn"><i class="bi bi-clipboard-fill"></i> 複製網址</button>
+              <button type="button" class="btn btn-secondary copyLinkBtn"><i class="bi bi-clipboard-fill"></i> 複製網址</button>
             </div>
           </div>
         </div>
@@ -342,20 +342,60 @@
                 observer.observe(trigger);
             }
 
-            // Copy link functionality
-            const copyLinkBtn = document.getElementById('copyLinkBtn');
-            if (copyLinkBtn) {
-                copyLinkBtn.addEventListener('click', function() {
-                    const url = 'https://tucheng-sisters.com';
-                    navigator.clipboard.writeText(url).then(() => {
-                        const originalText = copyLinkBtn.innerHTML;
-                        copyLinkBtn.innerHTML = '已複製！';
-                        setTimeout(() => {
-                            copyLinkBtn.innerHTML = originalText;
-                        }, 1500);
-                    });
+            // --- START: Device-aware Facebook Share Logic ---
+
+            // Function to detect mobile device
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            // Get all Facebook share links
+            const fbShareLinks = document.querySelectorAll('a[href*="facebook.com/sharer"]');
+            const shareUrl = 'https://tucheng-sisters.com';
+
+            if (isMobileDevice()) {
+                fbShareLinks.forEach(link => {
+                    // For mobile, use a link that is more likely to open the app
+                    link.href = `fb://facewebmodal/f?href=${encodeURIComponent(shareUrl)}`;
+                    // As a fallback, you could also just keep the original link,
+                    // as mobile OSes often prompt the user to open in the app anyway.
+                    // The fb:// scheme provides a more direct attempt.
+                });
+            } else {
+                // For desktop, the default sharer.php link is fine.
+                // No change needed, but we set it explicitly for clarity.
+                 fbShareLinks.forEach(link => {
+                    link.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
                 });
             }
+
+            // --- END: Device-aware Facebook Share Logic ---
+
+
+            // Copy link functionality
+            // Select all copy buttons
+            const copyLinkBtns = document.querySelectorAll('.copyLinkBtn');
+
+            copyLinkBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = 'https://tucheng-sisters.com';
+                    navigator.clipboard.writeText(url).then(() => {
+                        const originalHtml = btn.innerHTML;
+                        btn.innerHTML = '已複製！';
+                        // Revert back to original text after 1.5 seconds
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                        }, 1500);
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+                });
+            });
+
+            // I noticed you had multiple elements with the same ID "copyLinkBtn".
+            // It's better practice to use a class for elements that appear more than once.
+            // I've updated the selector to use a class ".copyLinkBtn".
+            // Please change id="copyLinkBtn" to class="copyLinkBtn" in your HTML for the copy buttons.
         });
     </script>
 </body>

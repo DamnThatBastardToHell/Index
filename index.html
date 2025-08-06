@@ -342,38 +342,22 @@
                 observer.observe(trigger);
             }
 
-            // --- START: Device-aware Facebook Share Logic ---
+            // --- START: Universal Facebook Share Logic ---
 
-            // Function to detect mobile device
-            function isMobileDevice() {
-                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            }
-
-            // Get all Facebook share links
+            // Set the standard share link for all devices.
+            // Mobile OS will handle opening this link in the app.
             const fbShareLinks = document.querySelectorAll('a[href*="facebook.com/sharer"]');
             const shareUrl = 'https://tucheng-sisters.com';
+            const facebookWebShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
 
-            if (isMobileDevice()) {
-                fbShareLinks.forEach(link => {
-                    // For mobile, use a link that is more likely to open the app
-                    link.href = `fb://facewebmodal/f?href=${encodeURIComponent(shareUrl)}`;
-                    // As a fallback, you could also just keep the original link,
-                    // as mobile OSes often prompt the user to open in the app anyway.
-                    // The fb:// scheme provides a more direct attempt.
-                });
-            } else {
-                // For desktop, the default sharer.php link is fine.
-                // No change needed, but we set it explicitly for clarity.
-                 fbShareLinks.forEach(link => {
-                    link.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-                });
-            }
+            fbShareLinks.forEach(link => {
+                link.href = facebookWebShareUrl;
+            });
 
-            // --- END: Device-aware Facebook Share Logic ---
+            // --- END: Universal Facebook Share Logic ---
 
 
-            // Copy link functionality
-            // Select all copy buttons
+            // Copy link functionality for all buttons with class="copyLinkBtn"
             const copyLinkBtns = document.querySelectorAll('.copyLinkBtn');
 
             copyLinkBtns.forEach(btn => {
@@ -382,7 +366,6 @@
                     navigator.clipboard.writeText(url).then(() => {
                         const originalHtml = btn.innerHTML;
                         btn.innerHTML = '已複製！';
-                        // Revert back to original text after 1.5 seconds
                         setTimeout(() => {
                             btn.innerHTML = originalHtml;
                         }, 1500);
@@ -391,11 +374,6 @@
                     });
                 });
             });
-
-            // I noticed you had multiple elements with the same ID "copyLinkBtn".
-            // It's better practice to use a class for elements that appear more than once.
-            // I've updated the selector to use a class ".copyLinkBtn".
-            // Please change id="copyLinkBtn" to class="copyLinkBtn" in your HTML for the copy buttons.
         });
     </script>
 </body>
